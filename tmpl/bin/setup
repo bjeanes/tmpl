@@ -12,11 +12,14 @@ function main {
 function add_new_env_vars {
   touch .env
   export IFS=$'\n'
-  for var in `cat .env.template`; do
-    key="${var%%=*}"     # get var key
-    var=`eval echo $var` # generate dynamic values
+  for line in `cat .env.template`; do
+    # evaluate dynamic values and strip comments
+    var=`eval echo $line`
+
+    [ -z $var ] && continue
 
     # If .env doesn't contain this env key, add it
+    key="${line%%=*}"
     if ! `grep -qLE "^$key=" .env`; then
       echo "Adding $key to .env"
       echo $var >> .env

@@ -1,0 +1,17 @@
+#!/bin/bash
+#
+# This script is like `run-command-on-branch-commits` except it fills in the
+# commit range for you, using HEAD and the merge base of master, which is
+# probably the point at which this branch diverged from master. In most cases,
+# this will mean the revision range will just be your feature branch commits.
+
+branch=`git rev-parse --abbrev-ref HEAD`
+base=`git merge-base origin/master HEAD`
+head=`git rev-parse HEAD`
+
+if [ "x$base" = "x$head" ]; then
+  echo "You have no new commits since origin/master to run; just run the command."
+  exit 1
+fi
+
+bin/run-command-on-git-revisions $base $branch $*

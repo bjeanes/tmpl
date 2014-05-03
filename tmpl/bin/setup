@@ -1,0 +1,52 @@
+#!/bin/sh
+
+function main {
+  set -e
+
+  add_new_env_vars
+  which bundle 2>/dev/null || gem install bundler
+  bundle install
+  install_git_hooks
+}
+
+function add_new_env_vars {
+  touch .env
+  export IFS=$'\n'
+  for var in `cat .env.template`; do
+    key="${var%%=*}"     # get var key
+    var=`eval echo $var` # generate dynamic values
+
+    # If .env doesn't contain this env key, add it
+    if ! `grep -qLE "^$key=" .env`; then
+      echo "Adding $key to .env"
+      echo $var >> .env
+    fi
+  done
+}
+
+function install_git_hooks {
+  for hook in bin/hooks/*; do
+    # if we found an executable file...
+    if [ -f $hook -a -x $hook ]; then
+      dest=.git/hooks/`basename $hook`
+      src=../../$hook
+
+      # if a hook of this name is already installed
+      if [ -f $dest ]; then
+
+        # and it is either not a symlink or a symlink pointing to anything
+        # other than our own hook
+        if [ ! -L $dest ] || [ `readlink -n $dest` != $src ]; then
+
+          # then move it aside
+          mv $dest ${dest}.orig
+        fi
+      fi
+
+      # install our own hook
+      ln -sf $src $dest
+    fi
+  done
+}
+
+main

@@ -1,0 +1,35 @@
+#!/usr/bin/env ruby
+
+def fold(name)
+  if ENV.key?('TRAVIS')
+    id = name.downcase.gsub(/[^a-z0-9.]+/, '_')
+    system("echo -en 'travis_fold:start:#{id}\\r'")
+    puts "Running #{name}"
+    yield
+    system("echo -en 'travis_fold:end:#{id}\\r'")
+  else
+    yield
+  end
+end
+
+all_tests         = Dir['test/**/*_{test,spec}.rb']
+integration_tests = Dir['test/integration/**/*_{test,spec}.rb']
+unit_tests        = all_tests - integration_tests
+
+passes = true
+fold "Unit Tests" do
+  passes = unit_tests.reduce(passes) do |last_passed, test|
+    system('ruby', '-I', './test', test) && last_passed
+  end
+end
+
+fold "Integration Tests" do
+  args = [
+    'ruby', '-I', './test',
+    '-e', 'ARGV.each { |path| require "./#{path}" }',
+    *integration_tests
+  ]
+  passes = system(*args) && passes
+end
+
+exit(1) unless passes

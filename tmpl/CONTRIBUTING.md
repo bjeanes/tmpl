@@ -24,7 +24,7 @@ Code is read hundreds of times but only written once.
 
 #### Commits
 
-* Write commit messages as per Tim Pope's guidelines [here][commit messages] ideally
+* Write commit messages as per Tim Pope's guidelines [here][commit-messages] ideally
   with detailed explanatory text to commits to provide needed context. Imagine
   `git blame`-ing any of these lines 6 months later; the commit message should
   provide orientation.

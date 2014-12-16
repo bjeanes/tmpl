@@ -59,7 +59,7 @@ Code is read hundreds of times but only written once.
 * Do not commit trailing whitespace.
 * Do not commit mixed spacing.
 * Do not load the full application for unit tests, just the direct component
-  itself, which should in turn load it's direct dependencies.
+  itself, which should in turn load its direct dependencies.
 * Do not rely on dependencies included circumstantially (e.g. by a component
   loaded earlier).
 * Do not commit artifacts that can be deterministically generated from
